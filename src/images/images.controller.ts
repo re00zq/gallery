@@ -4,6 +4,8 @@ import {
   Body,
   UseInterceptors,
   UploadedFiles,
+  Get,
+  Query,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ImagesService } from './images.service';
@@ -39,5 +41,24 @@ export class ImagesController {
       ),
     );
     return processed;
+  }
+
+  @Get()
+  async getImages(
+    @Query('cursor') cursor?: string,
+    @Query('take') take?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
+    @Query('title') title?: string,
+    @Query('description') description?: string,
+  ) {
+    return this.imagesService.getImagesPaginated({
+      cursor: cursor ? Number(cursor) : undefined,
+      take: take ? Number(take) : 10,
+      sortBy: sortBy || 'createdAt',
+      sortOrder: sortOrder || 'desc',
+      title,
+      description,
+    });
   }
 }

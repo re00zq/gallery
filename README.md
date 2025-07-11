@@ -72,7 +72,7 @@ All endpoints are prefixed with `/images`.
 - **Request:**
   - Content-Type: `multipart/form-data`
   - Fields:
-    - `file`: Image file (required)
+    - `files`: Image files (required)
     - `title`: String (required)
     - `description`: String (optional)
 - **Response:** Returns the created image metadata.

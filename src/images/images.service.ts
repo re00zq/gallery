@@ -69,4 +69,49 @@ export class ImagesService {
 
     return this.prisma.image.delete({ where: { id } });
   }
+
+  async getImagesPaginated({
+    cursor,
+    take = 10,
+    sortBy = 'createdAt',
+    sortOrder = 'desc',
+    title,
+    description,
+  }: {
+    cursor?: number;
+    take?: number;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+    title?: string;
+    description?: string;
+  }) {
+    const where: any = {};
+    if (title) where.title = { contains: title, mode: 'insensitive' };
+    if (description)
+      where.description = { contains: description, mode: 'insensitive' };
+
+    const images = await this.prisma.image.findMany({
+      where,
+      take,
+      skip: cursor ? 1 : 0,
+      ...(cursor && { cursor: { id: cursor } }),
+      orderBy: { [sortBy]: sortOrder },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        url: true,
+        createdAt: true,
+      },
+    });
+
+    // Get the next cursor
+    const nextCursor =
+      images.length === take ? images[images.length - 1].id : null;
+
+    return {
+      images,
+      nextCursor,
+    };
+  }
 }
