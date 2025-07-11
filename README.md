@@ -1,132 +1,111 @@
-# Gallery Application
+# Gallery API
 
-A modern web application for managing image uploads, storage, and metadata. Built with NestJS, Prisma, PostgreSQL, and Supabase Storage.
+A NestJS-based API for uploading and managing images with support for:
+
+- Multiple image uploads per request
+- Simulated image processing delays
+- Cursor-based pagination, sorting, and filtering for image metadata
+
+---
 
 ## Features
 
-- Upload images with title and description
-- Store image metadata in PostgreSQL
-- Store image files in Supabase Storage
-- Retrieve all images or a single image by ID
-- Delete images (removes both metadata and file)
-- RESTful API with clear endpoints
+- **Upload Multiple Images:**  
+  Upload several images in a single request using the `files` field.
+- **Simulated Processing:**  
+  Each image upload is delayed to simulate processing time.
+- **Fetch Images with Pagination:**  
+  Retrieve image metadata (not content) with cursor-based pagination, sorting, and filtering.
 
-## Tech Stack
+---
 
-- **Backend:** [NestJS](https://nestjs.com/)
-- **ORM:** [Prisma](https://www.prisma.io/)
-- **Database:** PostgreSQL
-- **Cloud Storage:** [Supabase Storage](https://supabase.com/storage)
-- **Node.js:** v16 or later
+## Endpoints
 
-## Getting Started
+### 1. Upload Images
 
-### Prerequisites
+**POST** `/images/upload`
 
-- Node.js v16+
-- PostgreSQL database
-- Supabase project with a storage bucket named `gallery`
+- Accepts multiple files using the `files` field (form-data).
+- Additional fields: `title` (string), `description` (string, optional).
+- Simulates processing delay for each file.
 
-### Installation
+**Example (curl):**
 
 ```sh
-git clone https://github.com/re00zq/gallery
-cd gallery
-npm install
+curl -X POST http://localhost:3000/images/upload ^
+  -F "files=@path\to\image1.jpg" ^
+  -F "files=@path\to\image2.jpg" ^
+  -F "title=My Gallery" ^
+  -F "description=Multiple images"
 ```
 
-### Environment Variables
+**Request (Postman):**
 
-Create a `.env` file in the root directory:
+- Set method to POST and URL to `/images/upload`
+- In Body > form-data:
+  - Key: `files` (type: File, select multiple files)
+  - Key: `title` (type: Text)
+  - Key: `description` (type: Text, optional)
+
+---
+
+### 2. Fetch Images (Metadata Only)
+
+**GET** `/images`
+
+**Query Parameters:**
+
+- `cursor` (number, optional): For pagination, pass the last received `id` as the next cursor.
+- `take` (number, optional): Number of images to fetch (default: 10).
+- `sortBy` (string, optional): Field to sort by (default: `createdAt`).
+- `sortOrder` (`asc` | `desc`, optional): Sort order (default: `desc`).
+- `title` (string, optional): Filter by title (contains, case-insensitive).
+- `description` (string, optional): Filter by description (contains, case-insensitive).
+
+**Example:**
 
 ```
-DATABASE_URL="your_postgres_connection_string"
-SUPABASE_URL="your_supabase_url"
-SUPABASE_KEY="your_supabase_service_role_key"
+GET /images?take=5&sortBy=title&sortOrder=asc&title=cat
 ```
 
-### Database Migration
+**Response:**
 
-Run Prisma migrations to set up the database schema:
-
-```sh
-npx prisma migrate deploy
-```
-
-### Running the Application
-
-```sh
-npm run start:dev
-```
-
-The server will start on `http://localhost:3000`.
-
-## API Endpoints
-
-All endpoints are prefixed with `/images`.
-
-### 1. Upload Image
-
-- **URL:** `POST /images/upload`
-- **Description:** Upload a new image with title and description.
-- **Request:**
-  - Content-Type: `multipart/form-data`
-  - Fields:
-    - `files`: Image files (required)
-    - `title`: String (required)
-    - `description`: String (optional)
-- **Response:** Returns the created image metadata.
-
-#### Example (using curl):
-
-```sh
-curl -X POST http://localhost:3000/images/upload \
-  -F "file=@/path/to/image.jpg" \
-  -F "title=Sample Image" \
-  -F "description=An example image"
+```json
+{
+  "images": [
+    {
+      "id": 1,
+      "title": "Cat 1",
+      "description": "A cute cat",
+      "url": "https://...",
+      "createdAt": "2024-07-12T12:00:00Z"
+    }
+    // ...
+  ],
+  "nextCursor": 6
+}
 ```
 
 ---
 
-### 2. Get All Images
+## Notes
 
-- **URL:** `GET /images`
-- **Description:** Retrieve a list of all images.
-- **Response:** Array of image objects.
-
----
-
-### 3. Get Image by ID
-
-- **URL:** `GET /images/:id`
-- **Description:** Retrieve a single image by its ID.
-- **Response:** Image object.
+- Only image metadata is returned by the GET endpoint (not the image binary).
+- Use the `nextCursor` value for paginating through results.
+- Make sure to use the field name `files` when uploading multiple images.
 
 ---
 
-### 4. Delete Image
+## Running the Project
 
-- **URL:** `DELETE /images/:id`
-- **Description:** Delete an image by its ID (removes both metadata and file from storage).
-- **Response:** Deleted image object.
+1. Install dependencies:
+   ```sh
+   npm install
+   ```
+2. Start the server:
+   ```sh
+   npm run start
+   ```
+3. The API will be available at `http://localhost:3000/`
 
 ---
-
-## Project Structure
-
-```
-src/
-  app.module.ts
-  main.ts
-  images/
-    images.controller.ts
-    images.module.ts
-    images.service.ts
-  prisma/
-    prisma.service.ts
-  supabase/
-    supabase.service.ts
-prisma/
-  schema.prisma
-  migrations/
-```
