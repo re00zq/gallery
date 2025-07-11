@@ -14,6 +14,8 @@ This is a gallery web application built as part of a job application task. It al
 
 1. **Clone the Repository**:
    ```bash
-   git clone <repository-url>
-   cd gallery-app
+   git clone https://github.com/re00zq/gallery
+   cd gallery
+   npm install
+   npm run start:dev
    ```
