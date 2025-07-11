@@ -1,6 +1,6 @@
 # Gallery Application
 
-This is a gallery web application built as part of a job application task. It allows users to upload, view, and delete images, with metadata stored in PostgreSQL and images stored in AWS S3.
+This is a gallery web application built as part of a job application task. It allows users to upload, view, and delete images, with metadata stored in PostgreSQL and images stored in Supabase.
 
 ## Tech Stack
 
