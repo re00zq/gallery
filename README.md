@@ -7,7 +7,7 @@ This is a gallery web application built as part of a job application task. It al
 - **Backend**: NestJS
 - **ORM**: Prisma
 - **Database**: PostgreSQL
-- **Cloud Storage**: AWS S3
+- **Cloud Storage**: Supabase (for image storage)
 - **Node.js**: v16 or later
 
 ## Setup Instructions
